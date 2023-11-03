@@ -14,3 +14,8 @@ Using https://github.com/amaiya/onprem with a modified frontend to demo differen
 
 - load the python environment: source venv/bin/activate
 - start the WebGUI: streamlit run app.py
+
+## Data
+
+- onprem stores all models and vectordb at "~/onprem_data/"
+- we use the (supplied) PDF in ./sample_data/ for retrieval augmented generation (RAG)
