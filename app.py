@@ -55,9 +55,19 @@ def main():
         page_title="Aarnos onpremllm demo", page_icon="🐍", layout="wide"
     )
     streamlit.title("Aarnos onpremllm demo")
-    screen = streamlit.sidebar.radio(
-        "Demo:", ("Falcon 7B", "Falcon 40B", "Falcon 7B + RAG", "Falcon 40B + RAG")
+    model = streamlit.sidebar.radio(
+        "Model:",
+        (
+            "Falcon 7B",
+            "Falcon 40B",
+            "Mistral 7B",
+            "Wizard 7B",
+            "Wizard 13B",
+            "OpenOrca 13B",
+        ),
     )
+    rag = streamlit.sidebar.checkbox("Use Retrieval Augmented Generation (RAG)")
+
     template = """
 ### Instruction:
 
@@ -65,67 +75,63 @@ def main():
 
 ### Response:"""
 
-    if screen == "Falcon 7B" or screen == "Falcon 40B":
-        prompt = streamlit.text_area(
-            "Submit a Prompt to the LLM:",
-            "",
-            height=100,
-            placeholder="",
-            help="Tip: If you don't like the response quality after pressing 'Submit', try pressing the button a second time. "
-            "You can also try re-phrasing the prompt.",
-        )
-        submit_button = streamlit.button("Submit")
-        streamlit.markdown("---")
-        if screen == "Falcon 7B":
-            llm = setup_llm(
-                {
-                    "model_url": "https://huggingface.co/hadongz/falcon-7b-instruct-gguf/resolve/main/falcon-7b-instruct-q4_0.gguf",
-                    "n_gpu_layers": 49,
-                }
-            )
-        else:
-            llm = setup_llm(
-                {
-                    "model_url": "https://huggingface.co/YokaiKoibito/falcon-40b-GGUF/resolve/main/falcon-40b-Q3_K_M.gguf",
-                    "n_gpu_layers": 49,
-                }
-            )
+    if model == "Falcon 7B":
+        model_config = {
+            "model_url": "https://huggingface.co/hadongz/falcon-7b-instruct-gguf/resolve/main/falcon-7b-instruct-q4_0.gguf",
+            "n_gpu_layers": 49,
+        }
 
-        if prompt and submit_button:
-            print(prompt)
-            saved_output = llm.prompt(prompt, prompt_template=template)
-    elif screen == "Falcon 7B + RAG" or screen == "Falcon 40B + RAG":
-        question = streamlit.text_input(
-            "Enter a question and press the `Ask` button:",
-            value="",
-            help="Tip: If you don't like the answer quality after pressing 'Ask', try pressing the Ask button a second time. "
-            "You can also try re-phrasing the question.",
-        )
-        ask_button = streamlit.button("Ask")
-        if screen == "Falcon 7B + RAG":
-            llm = setup_llm(
-                {
-                    "model_url": "https://huggingface.co/hadongz/falcon-7b-instruct-gguf/resolve/main/falcon-7b-instruct-q4_0.gguf",
-                    "n_gpu_layers": 49,
-                }
-            )
-        else:
-            llm = setup_llm(
-                {
-                    "model_url": "https://huggingface.co/YokaiKoibito/falcon-40b-GGUF/resolve/main/falcon-40b-Q3_K_M.gguf",
-                    "n_gpu_layers": 49,
-                }
-            )
+    elif model == "Falcon 40B":
+        model_config = {
+            "model_url": "https://huggingface.co/YokaiKoibito/falcon-40b-GGUF/resolve/main/falcon-40b-Q3_K_M.gguf",
+            "n_gpu_layers": 49,
+        }
+    elif model == "OpenOrca 13B":
+        model_config = {
+            "model_url": "https://huggingface.co/kroonen/OpenOrca-Platypus2-13B-GGUF/resolve/main/OpenOrca-Platypus2-13B-Q4_K_M.gguf",
+            "n_gpu_layers": 49,
+        }
+    elif model == "Mistral 7B":
+        model_config = {
+            "model_url": "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
+            "n_gpu_layers": 49,
+        }
+    elif model == "Wizard 7B":
+        model_config = {
+            "model_url": "https://huggingface.co/TheBloke/Wizard-Vicuna-7B-Uncensored-GGUF/resolve/main/Wizard-Vicuna-7B-Uncensored.Q4_K_M.gguf",
+            "n_gpu_layers": 49,
+        }
+    elif model == "Wizard 13B":
+        model_config = {
+            "model_url": "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
+            "n_gpu_layers": 49,
+        }
+    input = streamlit.text_input(
+        "Submit a Prompt to the LLM:",
+        placeholder="As a software developer, what is VSHN AppOps?",
+    )
+
+    if not rag:  # run model without RAG
+        # submit_button = streamlit.button("Prompt")
+        streamlit.markdown("---")
+        llm = setup_llm(model_config)
+        if input:
+            print(input)
+            saved_output = llm.prompt(input, prompt_template=template)
+    else:  # run model with RAG
+        # ask_button = streamlit.button("Ask")
+        streamlit.markdown("---")
+        llm = setup_llm(model_config)
         llm.ingest("./sample_data")
-        if question and ask_button:
-            print(question)
-            result = llm.ask(question)
+        if input:
+            print(input)
+            result = llm.ask(input)
             answer = result["answer"]
             docs = result["source_documents"]
             unique_sources = set()
             for doc in docs:
                 answer_score = compute_similarity(answer, doc.page_content)
-                question_score = compute_similarity(question, doc.page_content)
+                question_score = compute_similarity(input, doc.page_content)
                 if answer_score < 0.5 or question_score < 0.3:
                     continue
                 unique_sources.add(

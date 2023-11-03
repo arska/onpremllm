@@ -19,3 +19,7 @@ Using https://github.com/amaiya/onprem with a modified frontend to demo differen
 
 - onprem stores all models and vectordb at "~/onprem_data/"
 - we use the (supplied) PDF in ./sample_data/ for retrieval augmented generation (RAG)
+
+## Screenshot
+
+![Screenshot](screenshot.png)
