@@ -1,0 +1,7 @@
+torch
+torchvision
+torchaudio
+llama-cpp-python
+onprem
+watchdog
+streamlit

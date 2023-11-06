@@ -58,11 +58,11 @@ def main():
     model = streamlit.sidebar.radio(
         "Model:",
         (
+            "Wizard 7B",
+            "Wizard 13B",
             "Falcon 7B",
             "Falcon 40B",
             "Mistral 7B",
-            "Wizard 7B",
-            "Wizard 13B",
             "OpenOrca 13B",
         ),
     )
@@ -149,9 +149,9 @@ def main():
                 streamlit.markdown(
                     "**One or More of These Sources Were Used to Generate the Answer:**"
                 )
-                streamlit.markdown(
-                    "*You can inspect these sources for more information and to also guard against hallucinations in the answer.*"
-                )
+                # streamlit.markdown(
+                #     "*You can inspect these sources for more information and to also guard against hallucinations in the answer.*"
+                # )
                 for source in unique_sources:
                     fname = source[0]
                     # fname = construct_link(
