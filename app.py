@@ -61,7 +61,7 @@ def main():
             "Wizard 7B",
             "Wizard 13B",
             "Falcon 7B",
-            "Falcon 40B",
+            # "Falcon 40B",
             "Mistral 7B",
             "OpenOrca 13B",
         ),
@@ -77,35 +77,47 @@ def main():
 
     if model == "Falcon 7B":
         model_config = {
-            "model_url": "https://huggingface.co/hadongz/falcon-7b-instruct-gguf/resolve/main/falcon-7b-instruct-q4_0.gguf",
-            "n_gpu_layers": 49,
+            "model_url": "https://huggingface.co/maddes8cht/ehartford-WizardLM-Uncensored-Falcon-7b-gguf/resolve/main/ehartford-WizardLM-Uncensored-Falcon-7b-Q3_K_M.gguf",
+            "n_gpu_layers": 99,
         }
-
+        prompt_template = "{prompt}\n### Response:"
+        ask_template = "{question}\n{context}\n### Response:"
     elif model == "Falcon 40B":
         model_config = {
-            "model_url": "https://huggingface.co/YokaiKoibito/falcon-40b-GGUF/resolve/main/falcon-40b-Q3_K_M.gguf",
-            "n_gpu_layers": 49,
+            "model_url": "",
+            "n_gpu_layers": 99,
         }
+        prompt_template = "{prompt}"
+        ask_template = "{prompt}\n{context}"
     elif model == "OpenOrca 13B":
         model_config = {
             "model_url": "https://huggingface.co/kroonen/OpenOrca-Platypus2-13B-GGUF/resolve/main/OpenOrca-Platypus2-13B-Q4_K_M.gguf",
-            "n_gpu_layers": 49,
+            "n_gpu_layers": 99,
         }
+        prompt_template = "### Instruction:\n\n{prompt}\n\n### Response:"
+        ask_template = "### Instruction:\n\n{question}\n{context}\n\n### Response:"
     elif model == "Mistral 7B":
         model_config = {
             "model_url": "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
-            "n_gpu_layers": 49,
+            "n_gpu_layers": 99,
         }
+        prompt_template = "[INST] {prompt} [/INST]"
+        ask_template = "[INST] {question}\n{context} [/INST]"
     elif model == "Wizard 7B":
         model_config = {
             "model_url": "https://huggingface.co/TheBloke/Wizard-Vicuna-7B-Uncensored-GGUF/resolve/main/Wizard-Vicuna-7B-Uncensored.Q4_K_M.gguf",
-            "n_gpu_layers": 49,
+            "n_gpu_layers": 99,
         }
+        prompt_template = "{prompt}\n### Response:"
+        ask_template = "{question}\n{context}\n### Response:"
     elif model == "Wizard 13B":
         model_config = {
             "model_url": "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
-            "n_gpu_layers": 49,
+            "n_gpu_layers": 99,
         }
+        prompt_template = "{prompt}\n### Response:"
+        ask_template = "{question}\n{context}\n### Response:"
+
     input = streamlit.text_input(
         "Submit a Prompt to the LLM:",
         placeholder="As a software developer, what is VSHN AppOps?",
@@ -117,7 +129,7 @@ def main():
         llm = setup_llm(model_config)
         if input:
             print(input)
-            saved_output = llm.prompt(input, prompt_template=template)
+            saved_output = llm.prompt(input, prompt_template=prompt_template)
     else:  # run model with RAG
         # ask_button = streamlit.button("Ask")
         streamlit.markdown("---")
@@ -125,7 +137,7 @@ def main():
         llm.ingest("./sample_data")
         if input:
             print(input)
-            result = llm.ask(input)
+            result = llm.ask(input, prompt_template=ask_template)
             answer = result["answer"]
             docs = result["source_documents"]
             unique_sources = set()
