@@ -61,7 +61,7 @@ def main():
             "Wizard 7B",
             "Wizard 13B",
             "Falcon 7B",
-            # "Falcon 40B",
+            "Falcon 40B",
             "Mistral 7B",
             "OpenOrca 13B",
         ),
@@ -84,11 +84,11 @@ def main():
         ask_template = "{question}\n{context}\n### Response:"
     elif model == "Falcon 40B":
         model_config = {
-            "model_url": "",
-            "n_gpu_layers": 99,
+            "model_url": "https://huggingface.co/maddes8cht/tiiuae-falcon-40b-instruct-gguf/resolve/main/tiiuae-falcon-40b-instruct-Q3_K_M.gguf",
+            "n_gpu_layers": 89,
         }
-        prompt_template = "{prompt}"
-        ask_template = "{prompt}\n{context}"
+        prompt_template = "{prompt}\n### Response:"
+        ask_template = "{question}\n{context}\n### Response:"
     elif model == "OpenOrca 13B":
         model_config = {
             "model_url": "https://huggingface.co/kroonen/OpenOrca-Platypus2-13B-GGUF/resolve/main/OpenOrca-Platypus2-13B-Q4_K_M.gguf",
